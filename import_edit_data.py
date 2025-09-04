@@ -81,3 +81,17 @@ for season in [2021, 2022, 2023, 2024]:
         plt.grid(False)
         plt.title(f'Confusion Matrix for {season}')
         plt.show()
+
+    # Iterate through the test instances and find their nearest neighbors
+index = 0
+for game_index, spread, total in X_test.itertuples():
+# Get the neighbor distances and indices in the dataframe
+    nbr_distance = clf.kneighbors(X_test)[0][index]
+    nbr_index = clf.kneighbors(X_test)[1][index]
+    index += 1
+    # Display the games, the distances, and the neighbors
+    print(f'GAME')
+    print(nfl_df_mod.iloc[[game_index],:][['Season','Week','Team','Opp_x','Spread','Total','True_Total','Under']])
+    print(f'\nNEAREST NEIGHBORS (distances={[round(value, 2) for value in nbr_distance]})')
+    print(nfl_df_mod.iloc[nbr_index,:][['Season','Week','Team','Opp_x','Spread','Total','True_Total','Under']])
+    print('\n')
