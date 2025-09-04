@@ -95,3 +95,45 @@ for game_index, spread, total in X_test.itertuples():
     print(f'\nNEAREST NEIGHBORS (distances={[round(value, 2) for value in nbr_distance]})')
     print(nfl_df_mod.iloc[nbr_index,:][['Season','Week','Team','Opp_x','Spread','Total','True_Total','Under']])
     print('\n')
+
+# Make predictions for NFL Totals (Season = 2025, Week = 1)
+
+# Features and target
+features = ['Spread', 'Total']
+target = 'Under'
+
+# Set the season and the week
+season = 2025
+week = 1
+
+# Training data (all past games before Week 1 of 2025)
+train_df = nfl_df_mod.query('Season < @season or (Season == @season and Week < @week)')
+X_train = train_df[features]
+y_train = train_df[target]
+
+# Upcoming Week 1 games (home team's perspective)
+week1 = [
+    ['Cowboys @ Eagles', -8.5, 48.5],
+    ['Chiefs @ Chargers', 3.5, 46.5],
+    ['49ers @ Seahawks', 2.5, 43.5],
+    ['Lions @ Packers', -1.5, 47.5],
+    ['Ravens @ Bills',  1.5, 50.5],
+]
+
+# Create DataFrame for new games
+X_new = pd.DataFrame(week1, columns=['Game', 'Spread', 'Total'])
+
+# Train model
+model = KNeighborsClassifier(n_neighbors=7)
+clf = model.fit(X_train, y_train)
+
+# Make predictions
+y_pred = clf.predict(X_new[features])
+
+# Add predictions to the DataFrame
+X_new['KNC(7)'] = y_pred
+X_new['KNC(7)'] = X_new['KNC(7)'].apply(lambda x: 'Under' if x == 1 else 'Over')
+
+# Display results
+print(f'\nMODEL PREDICTIONS FOR WEEK {week} OF THE {season} NFL SEASON\n')
+print(X_new[['Game', 'Spread', 'Total', 'KNC(7)']])
